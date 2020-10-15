@@ -3,11 +3,6 @@ from scipy.fft import fft
 import numpy as np
 from math import floor
 
-# Question: is the iterative chunk approach proper one? or should we first clip "distinguish" sounds and then apply
-# digit recognition  for each (full) sequence
-
-# in the exercise the dat file is rename - should we keep the name or change to follow the project tree structure
-# (it is harder to match ordinal file)
 
 def get_button_by_frequency(fft_val: np.array, f_sample: float, f_step_: float) -> object:
     """
