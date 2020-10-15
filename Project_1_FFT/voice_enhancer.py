@@ -8,6 +8,7 @@ import numpy as np
 def main():
     #audio_file = r'original.wav'
     audio_file = r'original2.wav'
+    #audio_file = r'vowel.wav'
     rate, samples_numpy = read_wav(audio_file)
 
     single_channel = samples_numpy[:, 0]
@@ -27,7 +28,7 @@ def main():
     plt.plot(fft_x[:len(fft_x)//2], abs(fft_y[:len(fft_x)//2]))
     #plt.semilogy(fft_x[:len(fft_x)//2], abs(fft_y[:len(fft_x)//2]))
     plt.xlabel('Frequency [Hz]')
-    plt.ylabel('Intensity: |FFT(time_signal)| [-]')
+    plt.ylabel('Intensity: |FFT()| [-]')
 
     # Question: should we increase the whole voice spectrum or just peaks?
     # iterate over regions to modify
@@ -41,7 +42,7 @@ def main():
     plt.subplot(4, 1, 3)
     plt.plot(fft_x[:len(fft_x)//2], abs(new_fft_y[:len(fft_x)//2]))
     plt.xlabel('Frequency [Hz]')
-    plt.ylabel('Intensity: |FFT(time_signal)| [-]')
+    plt.ylabel('Intensity: |FFT()| [-]')
     plt.title('improved.wav')
 
     improved = ifft(new_fft_y).real #/ scalar_factor
@@ -53,6 +54,66 @@ def main():
     plt.ylabel('Amplitude [-]')
 
     write_wav("improved.wav", rate, improved)
+    ex_3_supporting(fft_x, fft_y)
+    ex_3_supporting_vowels(fft_x, fft_y)
+    ex_3_supporting_artifacts(fft_x, fft_y)
+    pass
+
+
+def ex_3_supporting_vowels(fft_x, fft_y, fundamentals=[101, 130, 167, 228], number_of_harmonics=[5, 5, 5, 4]):
+    """
+     show spectrum with predefined fundamentals and harmonics
+    """
+    new_fft_y = fft_y.copy()
+    window_size = 100
+    for i in range(len(new_fft_y)-window_size):
+        new_fft_y[i] = new_fft_y[i:i+window_size].mean()
+    plt.plot(fft_x[:3000:20], abs(new_fft_y[:3000:20]), 'r-', label='fft')
+
+    colors = 'bgcmykw'
+    ver_line = [max(abs(new_fft_y)) * 0.5, min(abs(new_fft_y))]
+    for id, (fund_, harmo_no) in enumerate(zip(fundamentals, number_of_harmonics)):
+        plt.plot([fund_] * 2, ver_line, f'{colors[id]}-', label=f'fundamental {fund_} Hz + harmonics', alpha=0.5)
+        for harm_id in range(2, harmo_no):
+            plt.plot([harm_id * fund_] * 2, ver_line, f'{colors[id]}-', alpha=0.5)
+    plt.legend()
+    plt.xlabel('Frequency [Hz]')
+    plt.ylabel('Intensity: |FFT()| [-]')
+    plt.savefig("vowels_fundamentals.svg")
+
+
+def ex_3_supporting(fft_x, fft_y):
+    """
+     show spectrum with predefined fundamentals and harmonics
+    """
+    new_fft_y = fft_y.copy()
+    window_size = 100
+    for i in range(len(new_fft_y)-window_size):
+        new_fft_y[i] = new_fft_y[i:i+window_size].mean()
+    plt.plot(fft_x[:16000:20], abs(new_fft_y[:16000:20]), 'r-', label='fft')
+
+    plt.legend()
+    plt.xlabel('Frequency [Hz]')
+    plt.ylabel('Intensity: |FFT()| [-]')
+    plt.savefig("vowels_consonants.svg")
+
+
+def ex_3_supporting_artifacts(fft_x, fft_y):
+    """
+     show spectrum with predefined fundamentals and harmonics
+    """
+    new_fft_y = fft_y.copy()
+    window_size = 100
+    for i in range(len(new_fft_y)-window_size):
+        new_fft_y[i] = new_fft_y[i:i+window_size].mean()
+    plt.plot(fft_x[:len(fft_x)//2:20], abs(new_fft_y[:len(fft_x)//2:20]), 'r-', label='fft')
+
+    plt.legend()
+    plt.xlabel('Frequency [Hz]')
+    plt.ylabel('Intensity: |FFT()| [-]')
+    plt.savefig("vowels_filtered.svg")
+
+
 
 
 if __name__ == "__main__":
