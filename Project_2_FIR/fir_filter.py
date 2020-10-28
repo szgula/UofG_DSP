@@ -3,9 +3,10 @@ import numpy as np
 
 
 class FIRFilter:
-    def __init__(self, num_taps: int, impulse_response_coef: np.array) -> None:
+    # TODO -> refactor: num_taps not needed
+    def __init__(self, impulse_response_coef: np.array) -> None:
 
-        self._num_of_taps = num_taps
+        self._num_of_taps = len(impulse_response_coef)
         self._past_values = deque([0] * self._num_of_taps, maxlen=self._num_of_taps)
         self._impulse_response = impulse_response_coef
 
@@ -26,7 +27,7 @@ class FIRFilterFactory(FIRFilter):
 
         self._impulse_response = self._initialize_impulse_response()
         self._window = self._initialize_window()
-        super().__init__(num_taps, self._impulse_response * self._window)
+        super().__init__(self._impulse_response * self._window)
 
     def _initialize_impulse_response(self) -> np.array:
         ideal_fre_resp = np.ones(self._num_of_taps//2)
@@ -56,7 +57,7 @@ class FIRFilterFactory(FIRFilter):
 class FIRDetector(FIRFilter):
     def __init__(self, values):
         self.threshold_value = 2.0e-6
-        super().__init__(len(values), values)
+        super().__init__(values)
         self.since_last_peak = self._num_of_taps
         self._debug = []
 

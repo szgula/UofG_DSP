@@ -33,7 +33,7 @@ class HeartbeatsDetector(FIRDetector):
         samples_since_last_peak = self.since_last_peak
         out = super().__call__(*args, **kwargs)
         if out:
-            self.hear_rate = 60 * samples_since_last_peak / self.fs
+            self.hear_rate = 60 * self.fs / samples_since_last_peak
             self.hear_rate_history.append(self.hear_rate)
             self.average_hear_rate = np.mean(self.hear_rate_history)
         return out
@@ -43,8 +43,8 @@ class HeartbeatsDetector(FIRDetector):
 
 
 if __name__ == '__main__':
-    ecg_class = GUDb(13,  'walking')
-
+    ecg_class = GUDb(2,  'walking')
+    hear_rate = []
     freq = [x / 250 for x in [1, 10, 40, 60]]
     my_fir = FIRFilterFactory(100, freq, False)
     my_detector = HeartbeatsDetector()
@@ -56,10 +56,12 @@ if __name__ == '__main__':
         output_piks[idx] = my_detector(output_list[idx])
         if output_piks[idx] > 0:
             hr, ahr = my_detector.get_heart_rate()
+            hear_rate.append(hr)
             print(f' beats per minute (bpm) = {hr:.2f}, \t mean bpm (10 cycles) = {ahr:.2f}')
 
 
-    plt.plot(output_list)
-    plt.plot(ecg_class.cs_V2_V1)
-    plt.plot(output_piks)
+    #plt.plot(output_list)
+    #plt.plot(ecg_class.cs_V2_V1)
+    #plt.plot(output_piks)
+    plt.plot(hear_rate)
     print('end')

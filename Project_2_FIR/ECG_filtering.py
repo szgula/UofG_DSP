@@ -22,7 +22,7 @@ class TestFIR(unittest.TestCase):
         plt.xlabel('Time [s]')
         plt.ylabel('Value [-]')
         plt.legend()
-        return True
+        #return True
 
     def test_initialization(self):
         freq = [x / 250 for x in [40, 60]]
