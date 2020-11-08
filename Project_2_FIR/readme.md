@@ -20,7 +20,7 @@ Download the ECG according to the last digit of your matric number.
      return result
 
 
-     Implement the FIR filter in an efficient way for example by using a ring buffer or by smart application of the Python slicing operations. Minimise the amount of data being      shifted and explain how / why you have done it. Put the lter class in a separate file for example r-lter.py so that it turns into a module which can be imported by the   main program.
+     Implement the FIR filter in an efficient way for example by using a ring buffer or by smart application of the Python slicing operations. Minimise the amount of data being      shifted and explain how / why you have done it. Put the lter class in a separate file for example fir-filter.py so that it turns into a module which can be imported by the   main program.
 
 2. Add a unit test to the module fir-filter.py from 1 which tests if the FIR filter works properly. For example the delay line and the proper multiplication of the coefficients.
 The unit test should be called if one starts the module with python fir-filter.py.
