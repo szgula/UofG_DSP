@@ -53,16 +53,16 @@ class FIRFilterFactory(FIRFilter):
             raise NotImplemented('Currently only triangle method is implemented - please use it')
         return norm_range
 
-
 class FIRDetector(FIRFilter):
-    def __init__(self, values):
-        self.threshold_value = 2.0e-6
+    def __init__(self, values, threshold_value=2.5e-11):
+        self.threshold_value = threshold_value
         super().__init__(values)
         self.since_last_peak = self._num_of_taps
         self._debug = []
 
     def __call__(self, *args, **kwargs):
         out = super().__call__(*args, **kwargs)
+        out **= 2
         self._debug.append(out)
         out = int(out > self.threshold_value)
         if out and self.since_last_peak > self._num_of_taps:
