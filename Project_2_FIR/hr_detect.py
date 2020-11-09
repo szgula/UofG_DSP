@@ -7,6 +7,11 @@ from fir_filter import FIRDetector, FIRFilterFactory
 
 class HeartbeatsDetector(FIRDetector):
     def __init__(self, fs=250):
+        """
+        Hear beats template based on the FIRDetector class
+        It uses predefined/hardcoded hear beat shape as the template base
+        :param fs: sampling frequency (to calculate time between beats)
+        """
         # single_peak_range = (1170, 1200)
         values = np.array(
             [-2.22810372e-04, -2.39728147e-04, -2.56649948e-04, -2.66944121e-04,
@@ -32,6 +37,12 @@ class HeartbeatsDetector(FIRDetector):
         super().__init__(values)
 
     def __call__(self, *args, **kwargs):
+        """
+        Extends FIRDetector callable functionality with hear beat postprocessing
+        :param args: inherited
+        :param kwargs: inherited
+        :return: inherited
+        """
         samples_since_last_peak = self.since_last_peak
         out = super().__call__(*args, **kwargs)
         if out:
@@ -41,6 +52,7 @@ class HeartbeatsDetector(FIRDetector):
         return out
 
     def get_heart_rate(self):
+        """ just interface """
         return self.hear_rate, self.average_hear_rate
 
 
@@ -59,11 +71,12 @@ if __name__ == '__main__':
         if output_piks[idx] > 0:
             hr, ahr = my_detector.get_heart_rate()
             hear_rate.append(hr)
-            print(f' beats per minute (bpm) = {hr:.2f}, \t mean bpm (10 cycles) = {ahr:.2f}')
+            if idx % 20 == 0:
+                print(f' beats per minute (bpm) = {hr:.2f}, \t mean bpm (10 cycles) = {ahr:.2f}')
 
-
-    #plt.plot(output_list)
-    #plt.plot(ecg_class.cs_V2_V1)
-    #plt.plot(output_piks)
     plt.plot(hear_rate)
+    plt.title('Graph of the momentary heartrate (in BPM: beats-per-minute) against time')
+    plt.xlabel('time step [unit step]')
+    plt.ylabel('momentary hear rate [bpm]')
+    plt.show()
     print('end')
