@@ -44,12 +44,12 @@ class HeartbeatsDetector(FIRDetector):
         :return: inherited
         """
         samples_since_last_peak = self.since_last_peak
-        out = super().__call__(*args, **kwargs)
-        if out:
+        hear_beat_detected = super().__call__(*args, **kwargs)
+        if hear_beat_detected:
             self.hear_rate = 60 * self.fs / samples_since_last_peak
             self.hear_rate_history.append(self.hear_rate)
             self.average_hear_rate = np.mean(self.hear_rate_history)
-        return out
+        return hear_beat_detected
 
     def get_heart_rate(self):
         """ just interface """
