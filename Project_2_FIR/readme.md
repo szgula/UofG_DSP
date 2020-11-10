@@ -1,10 +1,16 @@
+# Assignment 2, Digital Signal processing: FIR filters
+
+### By:
+#### Szymon Gula (2601553G)
+#### Allan Hernandez (2589702H)
+
+
+
 
 ## 1 ECG filtering
 ### Ex 1
 
-#### ! TODO - check all 'heart' ('hear')
-
-The code is using collowing implementation structure:
+The code is using following implementation structure:
 
     class FIRFilter:
         def __init__(self, impulse_response_coef: np.array) -> None:
@@ -102,9 +108,11 @@ The data processing is done in pseudo real time manner:
 Using mentioned code we achieved following results:
 
 ![Fig. 1: ECG_data](ECG_data.svg)
+
 __Fig. 1__: ECG full data: before and after filtering using FIR filter
 
 ![Fig. 2: ECG_data](ECG_data_2.svg)
+
 __Fig. 2__: Zoomed Fig. 1; it can be seen that the PQRST is intacted, and noise was (mostly) removed.
 
 ! TODO: Decide which cutoff frequencies are needed and provide explanations by referring to the spectra and/or fundamental frequencies.
@@ -144,29 +152,29 @@ The base class, the ```FIRDetector``` is a general implementation of the templat
             self.since_last_peak += 1
             return out
             
-The later class: ```HeartbeatsDetector``` is a class that inherit from ```FIRDetector``` and apply hardcoded heartbeats template. In addition it calculates the momentary and average hear-rate.
+The later class: ```HeartbeatsDetector``` is a class that inherit from ```FIRDetector``` and apply hardcoded heartbeats template. In addition it calculates the momentary and average heart-rate.
 
     class HeartbeatsDetector(FIRDetector):
         def __init__(self, fs=250):
             """
-            Hear beats template based on the FIRDetector class
-            It uses predefined/hardcoded hear beat shape as the template base
+            Heart beats template based on the FIRDetector class
+            It uses predefined/hardcoded heart beat shape as the template base
             :param fs: sampling frequency (to calculate time between beats)
             """
             
         def __call__(self, *args, **kwargs):
             """
-            Extends FIRDetector callable functionality with hear beat postprocessing
+            Extends FIRDetector callable functionality with heart beat postprocessing
             :param args: inherited
             :param kwargs: inherited
             :return: inherited
             """
             samples_since_last_peak = self.since_last_peak
-            hearbeat_detected = super().__call__(*args, **kwargs)      # flag if hearbeat detected
-            if hearbeat_detected: # calculate BPM and log data
-                self.hear_rate = 60 * self.fs / samples_since_last_peak
-                self.hear_rate_history.append(self.hear_rate)
-                self.average_hear_rate = np.mean(self.hear_rate_history)
+            heartbeat_detected = super().__call__(*args, **kwargs)      # flag if heartbeat detected
+            if heartbeat_detected: # calculate BPM and log data
+                self.heart_rate = 60 * self.fs / samples_since_last_peak
+                self.heart_rate_history.append(self.heart_rate)
+                self.average_heart_rate = np.mean(self.heart_rate_history)
             return out
     
         def get_heart_rate(self):
@@ -175,6 +183,7 @@ The later class: ```HeartbeatsDetector``` is a class that inherit from ```FIRDet
 To initialize the matched filter we used example QRST signal manually found in provided data.
 
 ![Fig. 3: ECG_data](single_beat.svg)
+
 __Fig. 3__: Single QRST time series - used as a raw signal for the matched filter (used by ```HeartbeatsDetector``` class)
 
 
@@ -186,14 +195,14 @@ The data processing is realize in pseudo real time manner.
 
     ecg_class = GUDb(13,  'walking')                      # agregate data
     my_fir = FIRFilterFactory(300, freq, False)           # prefilter (DC and 50Hz noise removal) 
-    my_detector = HeartbeatsDetector()                    # hear beat detector
+    my_detector = HeartbeatsDetector()                    # heart beat detector
 
     for idx, val in enumerate(ecg_class.einthoven_II):    # pseudo real time data generator
         output_list[idx] = my_fir(val)      # prefilter
-        output_piks[idx] = my_detector(output_list[idx])  # detect hear beats
-        if output_piks[idx] > 0:                          # if hear beats detected
+        output_piks[idx] = my_detector(output_list[idx])  # detect heart beats
+        if output_piks[idx] > 0:                          # if heart beats detected
             hr, ahr = my_detector.get_heart_rate()        # agrete temporal and average BPM
-            hear_rate.append(hr)                          # log data
+            heart_rate.append(hr)                          # log data
 
 
 The crucial steps are: 
@@ -203,12 +212,15 @@ The crucial steps are:
 Also, it is worth noted how we handle 'false events' removal. We have realized, that all false events (after initial filter stabilization) are due to multiple detection of the same R-peak. To overcome this problem, we implemented limitation on the matched filter to trigger event at most once per ```len(filter_taps)``` time steps.
 
 ####Results:
-In the Fig. 3 it can be seen the momentary heart rate. At the early time steps, the measurement is not accurate due to filter initialization inertia.
-![Fig. 3: ECG_data](momentary_heartrate.svg)
-__Fig. 3__: Momentary heartrate in BPM
+In the Fig. 4 it can be seen the momentary heart rate. At the early time steps, the measurement is not accurate due to filter initialization inertia.
+![Fig. 4: ECG_data](momentary_heartrate.svg)
 
-![Fig. 4: HR signals](hr_detector_signals.svg)
-__Fig. 4__: ECG and hear-detector data
+__Fig. 4__: Momentary heartrate in BPM
 
-![Fig. 5: HR signals - zoom](hr_detector_signals_zoom.svg)
-__Fig. 5__: ECG and hear-detector data (zoomed)
+![Fig. 5: HR signals](hr_detector_signals.svg)
+
+__Fig. 5__: ECG and heart-detector data
+
+![Fig. 6: HR signals - zoom](hr_detector_signals_zoom.svg)
+
+__Fig. 6__: ECG and heart-detector data (zoomed)

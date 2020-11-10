@@ -8,8 +8,8 @@ from fir_filter import FIRDetector, FIRFilterFactory
 class HeartbeatsDetector(FIRDetector):
     def __init__(self, fs=250):
         """
-        Hear beats template based on the FIRDetector class
-        It uses predefined/hardcoded hear beat shape as the template base
+        Heart beats template based on the FIRDetector class
+        It uses predefined/hardcoded heart beat shape as the template base
         :param fs: sampling frequency (to calculate time between beats)
         """
         # single_peak_range = (1170, 1200)
@@ -30,35 +30,35 @@ class HeartbeatsDetector(FIRDetector):
              -1.20383251e-04, -1.22370280e-04, -1.45199095e-04, -1.88362713e-04,
              -1.84759906e-04, -1.40900153e-04, -1.78750993e-04, -5.73116219e-05])
         values = values[::-1]
-        self.hear_rate = 0
-        self.average_hear_rate = 0
-        self.hear_rate_history = deque(maxlen=10)
+        self.heart_rate = 0
+        self.average_heart_rate = 0
+        self.heart_rate_history = deque(maxlen=10)
         self.fs = fs
         super().__init__(values)
 
     def __call__(self, *args, **kwargs):
         """
-        Extends FIRDetector callable functionality with hear beat postprocessing
+        Extends FIRDetector callable functionality with heart beat postprocessing
         :param args: inherited
         :param kwargs: inherited
         :return: inherited
         """
         samples_since_last_peak = self.since_last_peak
-        hear_beat_detected = super().__call__(*args, **kwargs)
-        if hear_beat_detected:
-            self.hear_rate = 60 * self.fs / samples_since_last_peak
-            self.hear_rate_history.append(self.hear_rate)
-            self.average_hear_rate = np.mean(self.hear_rate_history)
-        return hear_beat_detected
+        heart_beat_detected = super().__call__(*args, **kwargs)
+        if heart_beat_detected:
+            self.heart_rate = 60 * self.fs / samples_since_last_peak
+            self.heart_rate_history.append(self.heart_rate)
+            self.average_heart_rate = np.mean(self.heart_rate_history)
+        return heart_beat_detected
 
     def get_heart_rate(self):
         """ just interface """
-        return self.hear_rate, self.average_hear_rate
+        return self.heart_rate, self.average_heart_rate
 
 
 if __name__ == '__main__':
     ecg_class = GUDb(13,  'walking')
-    hear_rate = []
+    heart_rate = []
     freq = [x / 250 for x in [0, 10, 40, 60]]
     my_fir = FIRFilterFactory(300, freq, False)
     my_detector = HeartbeatsDetector()
@@ -70,11 +70,11 @@ if __name__ == '__main__':
         output_piks[idx] = my_detector(output_list[idx])
         if output_piks[idx] > 0:
             hr, ahr = my_detector.get_heart_rate()
-            hear_rate.append(hr)
+            heart_rate.append(hr)
             if idx % 20 == 0:
                 print(f' beats per minute (bpm) = {hr:.2f}, \t mean bpm (10 cycles) = {ahr:.2f}')
 
-    plt.plot(hear_rate)
+    plt.plot(heart_rate)
     plt.title('Graph of the momentary heartrate (in BPM: beats-per-minute) against time')
     plt.xlabel('time step [unit step]')
     plt.ylabel('momentary hear rate [bpm]')
