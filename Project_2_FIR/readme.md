@@ -14,7 +14,7 @@ I affirm that this submission is my own / the groups original work in accordance
 ## 1 ECG filtering
 ### Ex 1
 The goal of this exercise was to implement Python FIR filter class.
-To realize the task, we decided to use the following implementation structure:
+To realise the task, we decided to use the following implementation structure:
 
     class FIRFilter:
         def __init__(self, impulse_response_coef: np.array) -> None:
@@ -45,7 +45,7 @@ The mentioned design was selected because:
  
 ### Ex 2
  
-To ensure the code minimum functionality we added a testing component. Inside, we have created two basic unittests.
+To ensure the code minimal functionality we added a testing component, in which we created two basic unittests.
  
  
     class TestFIR(unittest.TestCase):
@@ -67,10 +67,10 @@ To ensure the code minimum functionality we added a testing component. Inside, w
  
 ### Ex 3
   
-According to Szymon's university number, we have selected the following data file: ```ECG_msc_matric_3.dat ```.
+According to Szymon's university number, we selected the following data file: ```ECG_msc_matric_3.dat ```.
   
-To remove the DC and 50Hz noise we designed the FIR factory that extends ```FIRFilter``` class and calculates the FIR filter coefficients.
-The ```FIRFilterFactory```, except number of tabs in filer, it takes the frequency range to remove, and window type. 
+To remove the DC and 50Hz noise, we designed the FIR factory that extends ```FIRFilter``` class and calculates the FIR filter coefficients.
+The ```FIRFilterFactory```, except the number of taps in the filter, takes the frequency range to remove and window type. 
   
     class FIRFilterFactory(FIRFilter):
         def __init__(self, num_taps: int, norm_freq_list: list, pass_zero: bool, window_type: 'str' = 'triangle') -> None:
@@ -94,8 +94,8 @@ The ```FIRFilterFactory```, except number of tabs in filer, it takes the frequen
             :return: window coefficients
             """
 
-For this exercise, we initialize FIR filter with 30 taps, cutoff frequency at ~<0, 10>Hz, and ~<40, 60>Hz.
-The first region corresponds to DC removal and later for the 50Hz removal. In addition, to get better performance, we apply a triangle window to the FIR coefficients.
+For this exercise, we initialized FIR filter with 30 taps, cutoff frequency at ~<0, 10>Hz, and ~<40, 60>Hz.
+The first region corresponds to DC removal and later for the 50Hz removal. In addition, to get better performance, we applied a triangle window to the FIR coefficients.
 
 The data processing is done in pseudo real time manner:
 
@@ -124,7 +124,7 @@ __Fig. 2__: Zoomed Fig. 1; it can be seen that the PQRST is intact, and the nois
 ### Ex 1
 In this exercise, we developed a matched filter by using QRST template to detect the R-peaks.
 
-From the technical perspective, we have created two classes to realize the QRST detector, namely: ```FIRDetector``` and ```HeartbeatsDetector```.
+From the technical perspective, we created two classes to realize the QRST detector, namely: ```FIRDetector``` and ```HeartbeatsDetector```.
 
 The base class, the ```FIRDetector``` is a general implementation of the template detector based on the matched FIR filter. 
 
@@ -154,7 +154,7 @@ The base class, the ```FIRDetector``` is a general implementation of the templat
             self.since_last_peak += 1
             return out
             
-The later class: ```HeartbeatsDetector``` is a class that inherit from ```FIRDetector``` and applies hardcoded heartbeats template. In addition it calculates the momentary and average heart-rate.
+The later class: ```HeartbeatsDetector``` is a class that inherit from ```FIRDetector``` and applies hardcoded heartbeats template. In addition, it calculates the momentary and average heart-rate.
 
     class HeartbeatsDetector(FIRDetector):
         def __init__(self, fs=250):
@@ -193,7 +193,7 @@ __Fig. 3__: Single QRST time series - used as a raw signal for the matched filte
 
 For this exercise, we used the ```GUDb/walking/13/Einthoven_II``` data-set (according to the last digit in Szymon's student number). The data was used to verify our implementation of the Ex 2.1 on real-world data. 
 
-The data processing is realized in a pseudo real-time manner. 
+The data processing was realized in a pseudo real-time manner. 
 
     ecg_class = GUDb(13,  'walking')                      # agregate data
     my_fir = FIRFilterFactory(300, freq, False)           # prefilter (DC and 50Hz noise removal) 
@@ -207,14 +207,14 @@ The data processing is realized in a pseudo real-time manner.
             heart_rate.append(hr)                          # log data
 
 
-The crucial steps are: 
+The crucial steps were: 
 - prefiltering - where DC and other noise artefacts are removed.
 - template matched detecting - where the event detection is handled.
 
-Also, it is worth noted how we handle 'false events' removal. We have realized, that all false events (after initial filter stabilization) are due to multiple detections of the same R-peak. To overcome this problem, we implemented limitations on the matched filter to trigger event at most once per ```len(filter_taps)``` time steps.
+Also, it is worth noted how we handled 'false events' removal. We realized that all false events (after initial filter stabilization) are due to multiple detections of the same R-peak. To overcome this problem, we implemented limitations on the matched filter to trigger event at most once per ```len(filter_taps)``` time steps.
 
 
-####Results:
+#### Results:
 
 In the Fig. 4 the momentary heart rate can be seen. At the early time steps, the measurement is not accurate due to filter initialization inertia.
 
