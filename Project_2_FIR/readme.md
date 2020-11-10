@@ -209,6 +209,7 @@ The crucial steps are:
 
 Also, it is worth noted how we handle 'false events' removal. We have realized, that all false events (after initial filter stabilization) are due to multiple detection of the same R-peak. To overcome this problem, we implemented limitation on the matched filter to trigger event at most once per ```len(filter_taps)``` time steps.
 
+
 ####Results:
 
 In the Fig. 4 it can be seen the momentary heart rate. At the early time steps, the measurement is not accurate due to filter initialization inertia.
