@@ -5,7 +5,7 @@ from fir_filter import FIRFilterFactory, FIRFilter
 
 def test_full_flow():
     """ Full flow smoke test"""
-    with open(r'ECG_msc_matric_3.dat', 'r') as file:
+    with open(r'shortecg.dat', 'r') as file:
         ecg_vals = []
         for val in file.readlines():
             ecg_vals.append(float(val))
