@@ -5,7 +5,7 @@ from fir_filter import FIRFilterFactory, FIRFilter
 
 def test_full_flow():
     """ Full flow smoke test"""
-    with open(r'shortecg.dat', 'r') as file:
+    with open(r'ECG_msc_matric_3.dat', 'r') as file:
         ecg_vals = []
         for val in file.readlines():
             ecg_vals.append(float(val))
@@ -25,7 +25,10 @@ def test_full_flow():
     plt.title('ECG data')
     plt.legend()
     plt.show()
+    #with open('shortecg.dat', 'w') as f:
+    #    np.save(f, output_list)
     #plt.savefig('ECG_data.svg')
+
 
 
 if __name__ == '__main__':
