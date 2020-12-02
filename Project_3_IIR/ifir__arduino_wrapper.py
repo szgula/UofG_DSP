@@ -36,10 +36,6 @@ class AnalogPrinter:
         self.filtered_buffer.append(filtered)
         self.file.write(f'{data}, {filtered} \n')
 
-    def myPrintCallback_y(self, data):
-        print("y = %f,%f" % (self.timestamp, data))
-        self.timestamp += (1 / self.samplingRate)
-        self.file.write(f'y: {data} \n')
 
     def __exit__(self, type, val, tr):
         self.board.samplingOff()
