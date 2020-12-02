@@ -48,7 +48,7 @@ class IIR2Filter:
         return a0, a1, a2, b0, b1, b2
 
 def return_filter():
-    freq = 5 / 50
+    freq = 2.5 / 50
     sos = signal.cheby2(6, 40, freq * 2, output='sos')
 
     my_iir = IIR2Filter(sos[0, :3], sos[0, 3:])

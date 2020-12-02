@@ -63,24 +63,28 @@ class ArduinoScope:
 
     def __enter__(self):
         self.board.analog[0].register_callback(self.callback)
-
         self.board.analog[0].enable_reporting()
         self.board.analog[1].enable_reporting()
         self.board.analog[2].enable_reporting()
+        self.app.exec_()
 
         #for _ in range(3):
          #   self.board.analog[_].enable_reporting()
 
     def callback(self, data, *args, **kwargs):
-        ch0 = data
+        translate_val = 3.3/(5*2)
+        scalar_val = 1/translate_val
+        mod_fun = lambda x: (x - translate_val) * scalar_val if x is not None else 0
+
+        ch0 = mod_fun(data)
         ch0_f = self.filters[0].filter(ch0)
 
         ch1 = self.board.analog[1].read()
-        if ch1 is None: ch1 = 0
+        ch1 = mod_fun(ch1)
         ch1_f = self.filters[1].filter(ch1)
 
         ch2 = self.board.analog[2].read()
-        if ch2 is None: ch2 = 0
+        ch2 = mod_fun(ch2)
         ch2_f = self.filters[2].filter(ch2)
 
         if ch0 and ch1 and ch2:
@@ -90,15 +94,15 @@ class ArduinoScope:
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.board.samplingOff()
         self.board.exit()
-        self.app.exec_()
+
 
 
 if __name__ == "__main__":
     my_iirs = [return_filter() for _ in range(3)]
     with ArduinoScope(my_iirs) as scope:
-        #time_sleep = 1000
-        #time.sleep(time_sleep)
-        for i in range(100000):
-            time.sleep(0.0001)
+        time_sleep = 100
+        time.sleep(time_sleep)
+        #for i in range(100000):
+         #   time.sleep(0.0001)
 
     print("Finished")
