@@ -47,11 +47,19 @@ class IIR2Filter:
         a2 = r*r
         return a0, a1, a2, b0, b1, b2
 
+def return_filter():
+    freq = 5 / 50
+    sos = signal.cheby2(6, 40, freq * 2, output='sos')
+
+    my_iir = IIR2Filter(sos[0, :3], sos[0, 3:])
+    my_factory = IIRFilter(sos)
+    return my_factory
 
 if __name__ == "__main__":
     with open('output.txt', 'r') as f:
         a = f.readlines()
     data = list(map(float, a))
+
 
     sampling_rate = 100  # Hzimp
     noise_frequency = 5  # Hz
