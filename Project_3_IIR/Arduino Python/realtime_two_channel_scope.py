@@ -10,6 +10,7 @@ from pyqtgraph.Qt import QtCore, QtGui
 import numpy as np
 from pyfirmata2 import Arduino
 from IIR_filter import IIRFilter, IIR2Filter, return_filter
+import time
 
 class QtPanningPlot:
 
@@ -61,33 +62,43 @@ class ArduinoScope:
         self.filters = filters
 
     def __enter__(self):
-        self.board.analog[0].register_callback(self)
-        for _ in range(3):
-            self.board.analog[_].enable_reporting()
+        self.board.analog[0].register_callback(self.callback)
 
-    def __call__(self, data, *args, **kwargs):
+        self.board.analog[0].enable_reporting()
+        self.board.analog[1].enable_reporting()
+        self.board.analog[2].enable_reporting()
+
+        #for _ in range(3):
+         #   self.board.analog[_].enable_reporting()
+
+    def callback(self, data, *args, **kwargs):
         ch0 = data
         ch0_f = self.filters[0].filter(ch0)
 
         ch1 = self.board.analog[1].read()
+        if ch1 is None: ch1 = 0
         ch1_f = self.filters[1].filter(ch1)
 
         ch2 = self.board.analog[2].read()
+        if ch2 is None: ch2 = 0
         ch2_f = self.filters[2].filter(ch2)
 
         if ch0 and ch1 and ch2:
             self.qtPanningPlot1.addData(ch0, ch1, ch2)
             self.qtPanningPlot2.addData(ch0_f, ch1_f, ch2_f)
 
-   def __exit__(self, exc_type, exc_val, exc_tb):
-       self.board.samplingOff()
-       self.board.exit()
-       self.app.exec_()
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.board.samplingOff()
+        self.board.exit()
+        self.app.exec_()
 
 
 if __name__ == "__main__":
     my_iirs = [return_filter() for _ in range(3)]
     with ArduinoScope(my_iirs) as scope:
-        time_sleep = 10
+        #time_sleep = 1000
+        #time.sleep(time_sleep)
+        for i in range(100000):
+            time.sleep(0.0001)
 
     print("Finished")
