@@ -100,24 +100,11 @@ class ArduinoScope:
             self.qtPanningPlot1.addData(ch0, ch1, ch2)
             self.qtPanningPlot2.addData(ch0_f, ch1_f, ch2_f)
 
-        x_data = self.board.analog[0].read()
-        y_data = self.board.analog[1].read()
-        z_data = self.board.analog[2].read()
 
-        print('raw and filtered data: ', round(self.timestamp, 4), x_data, y_data, z_data, ch0_f, ch1_f, ch2_f)
+        print('raw and filtered data: ', round(self.timestamp, 4), ch0, ch1, ch2, ch0_f, ch1_f, ch2_f)
         self.timestamp += (1 / self.samplingRate)
-        self.file.write(f'{round(self.timestamp, 4), x_data, y_data, z_data, ch0_f, ch1_f, ch2_f} \n')
+        self.file.write(f'{round(self.timestamp, 4), ch0, ch1, ch2, ch0_f, ch1_f, ch2_f} \n')
 
-    def myPrintCallback(self, data):
-
-        x_data = self.board.analog[0].read()
-        y_data = self.board.analog[1].read()
-        z_data = self.board.analog[2].read()
-
-        print('xyz data: ', round(self.timestamp, 4), x_data, y_data, z_data)
-        self.timestamp += (1 / self.samplingRate)
-
-        self.file.write(f'{x_data, y_data, z_data} \n')
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.board.samplingOff()
