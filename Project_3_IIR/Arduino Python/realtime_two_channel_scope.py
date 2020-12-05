@@ -109,6 +109,7 @@ class ArduinoScope:
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.board.samplingOff()
         self.board.exit()
+        self.file.close()
 
 
 if __name__ == "__main__":
