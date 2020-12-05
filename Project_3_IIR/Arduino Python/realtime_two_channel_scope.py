@@ -37,18 +37,26 @@ class QtPanningPlot:
         self.layout = QtGui.QGridLayout()
         self.win.setLayout(self.layout)
         self.win.show()
+        self.pens = {'b': pg.mkPen('b', width=1),
+                     'g': pg.mkPen('g', width=1),
+                     'm': pg.mkPen('m', width=1),
+                     'r': pg.mkPen('r', width=2),
+                     'w': pg.mkPen('w', width=2),}
+        self.event = False
 
     def update(self):
-        self.curve_x.setData(np.hstack(self.data_x))
-        self.curve_y.setData(np.hstack(self.data_y))
-        self.curve_z.setData(np.hstack(self.data_z))
-        self.curve_s.setData(np.hstack(self.data_s))
+        self.curve_x.setData(np.hstack(self.data_x), pen=self.pens['b'])
+        self.curve_y.setData(np.hstack(self.data_y), pen=self.pens['g'])
+        self.curve_z.setData(np.hstack(self.data_z), pen=self.pens['m'])
+        pen_ = pen=self.pens['r'] if self.event else self.pens['w']
+        self.curve_s.setData(np.hstack(self.data_s), pen=pen_)
 
-    def addData(self, x, y, z):
+    def addData(self, x, y, z, s, e=False):
         self.data_x.append(x)
         self.data_y.append(y)
         self.data_z.append(z)
-        self.data_s.append((z**2 + y**2 + x**2)**0.5)
+        self.data_s.append(s)
+        self.event = e
 
 
 class ArduinoScope:
@@ -97,14 +105,16 @@ class ArduinoScope:
         ch2_f = self.filters[2].filter(ch2)
 
         if ch0 and ch1 and ch2:
-            self.qtPanningPlot1.addData(ch0, ch1, ch2)
-            self.qtPanningPlot2.addData(ch0_f, ch1_f, ch2_f)
+            vector = (ch0 ** 2 + ch1 ** 2 + ch2 ** 2) ** 0.5
+            vector_f = (ch0_f**2 + ch1_f**2 + ch2_f**2)**0.5
+            self.qtPanningPlot1.addData(ch0, ch1, ch2, vector)
+            self.qtPanningPlot2.addData(ch0_f, ch1_f, ch2_f, vector_f, vector_f > 0.45)
 
 
         print('raw and filtered data: ', round(self.timestamp, 4), ch0, ch1, ch2, ch0_f, ch1_f, ch2_f)
         self.timestamp += (1 / self.samplingRate)
-        self.file.write(f'{round(self.timestamp, 4), ch0, ch1, ch2, ch0_f, ch1_f, ch2_f} \n')
 
+        self.file.write(f'{round(self.timestamp, 4), ch0, ch1, ch2, ch0_f, ch1_f, ch2_f} \n')
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.board.samplingOff()

@@ -25,7 +25,7 @@ for idx,(_, x, y, z, *_) in data.iterrows():
 
 plt.plot(data.iloc[:,0], s, label='filtered')
 plt.plot(data.iloc[:,0], us, label='raw')
-plt.plot(data.iloc[:,0], data_out['s'], label='filtered_2')
+#plt.plot(data.iloc[:,0], data_out['s'], label='filtered_2')
 plt.legend()
 
 
