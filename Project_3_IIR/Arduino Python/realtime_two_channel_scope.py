@@ -12,6 +12,7 @@ from pyfirmata2 import Arduino
 from IIR_filter import IIRFilter, IIR2Filter, return_filter
 import time
 
+
 class QtPanningPlot:
 
     def __init__(self, title):
@@ -28,8 +29,8 @@ class QtPanningPlot:
         self.data_x = deque([0]*x_range, maxlen=x_range)
         self.data_y = deque([0]*x_range, maxlen=x_range)
         self.data_z = deque([0]*x_range, maxlen=x_range)
-        self.data_s = deque([0] * x_range, maxlen=x_range)
-        # any additional initalisation code goes here (filters etc)
+        self.data_s = deque([0]*x_range, maxlen=x_range)
+        # any additional initialisation code goes here (filters etc)
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self.update)
         self.timer.start(100)
@@ -43,7 +44,7 @@ class QtPanningPlot:
         self.curve_z.setData(np.hstack(self.data_z))
         self.curve_s.setData(np.hstack(self.data_s))
 
-    def addData(self, x,y,z):
+    def addData(self, x, y, z):
         self.data_x.append(x)
         self.data_y.append(y)
         self.data_z.append(z)
@@ -55,11 +56,15 @@ class ArduinoScope:
         self.PORT = Arduino.AUTODETECT
         self.app = QtGui.QApplication(sys.argv)
         self.qtPanningPlot1 = QtPanningPlot("Arduino raw data")
-        self.qtPanningPlot2 = QtPanningPlot("Filered data")
+        self.qtPanningPlot2 = QtPanningPlot("Filtered data")
         self.samplingRate = 100
         self.board = Arduino(self.PORT)
         self.board.samplingOn(1000 / self.samplingRate)
         self.filters = filters
+        #test
+        self.file = open('xyz_output.txt', 'w')
+        self.timestamp = 0
+        #test
 
     def __enter__(self):
         self.board.analog[0].register_callback(self.callback)
@@ -68,8 +73,12 @@ class ArduinoScope:
         self.board.analog[2].enable_reporting()
         self.app.exec_()
 
+        self.board.analog[0].register_callback(self.myPrintCallback)
+        #self.board.analog[1].register_callback(self.myPrintCallback_y)
+        self.board.samplingOn(10)
+
         #for _ in range(3):
-         #   self.board.analog[_].enable_reporting()
+        #   self.board.analog[_].enable_reporting()
 
     def callback(self, data, *args, **kwargs):
         translate_val = 3.3/(5*2)
@@ -91,10 +100,20 @@ class ArduinoScope:
             self.qtPanningPlot1.addData(ch0, ch1, ch2)
             self.qtPanningPlot2.addData(ch0_f, ch1_f, ch2_f)
 
+    def myPrintCallback(self, data):
+
+        x_data = self.board.analog[0].read()
+        y_data = self.board.analog[1].read()
+        z_data = self.board.analog[2].read()
+
+        print('xyz data: ', round(self.timestamp, 4), x_data, y_data, z_data)
+        self.timestamp += (1 / self.samplingRate)
+
+        self.file.write(f'{x_data, y_data, z_data} \n')
+
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.board.samplingOff()
         self.board.exit()
-
 
 
 if __name__ == "__main__":
@@ -102,7 +121,8 @@ if __name__ == "__main__":
     with ArduinoScope(my_iirs) as scope:
         time_sleep = 100
         time.sleep(time_sleep)
-        #for i in range(100000):
-         #   time.sleep(0.0001)
+
+        # for i in range(100000):
+        # time.sleep(0.0001)
 
     print("Finished")
