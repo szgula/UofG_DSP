@@ -72,6 +72,8 @@ class ArduinoScope:
         #test
         self.file = open('xyz_output.txt', 'w')
         self.timestamp = 0
+        self.event = False
+        self.event_time = 0
         #test
 
     def __enter__(self):
@@ -108,7 +110,13 @@ class ArduinoScope:
             vector = (ch0 ** 2 + ch1 ** 2 + ch2 ** 2) ** 0.5
             vector_f = (ch0_f**2 + ch1_f**2 + ch2_f**2)**0.5
             self.qtPanningPlot1.addData(ch0, ch1, ch2, vector)
-            self.qtPanningPlot2.addData(ch0_f, ch1_f, ch2_f, vector_f, vector_f > 0.45)
+            if vector_f > 0.45:
+                self.event = True
+                self.event_time = 0
+            if self.event: self.event_time += 1
+            if self.event_time > 20:
+                self.event = False
+            self.qtPanningPlot2.addData(ch0_f, ch1_f, ch2_f, vector_f, self.event)
 
 
         print('raw and filtered data: ', round(self.timestamp, 4), ch0, ch1, ch2, ch0_f, ch1_f, ch2_f)
