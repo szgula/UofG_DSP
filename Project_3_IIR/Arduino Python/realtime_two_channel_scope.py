@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 """
-Plots channels zero and one in two different windows. Requires pyqtgraph.
+Base on the MIT licence code: pyFirmata2/examples/realtime_two_channel_scope.py by @berndporr
 """
 
 import sys
@@ -14,6 +14,9 @@ import time
 
 
 class QtPanningPlot:
+    """
+    Real-time plotting class
+    """
     def __init__(self, title):
         x_range = 500
         self.win = pg.GraphicsLayoutWidget()
@@ -41,7 +44,7 @@ class QtPanningPlot:
         for label_name in self.labels:
             pen_ = self.pens[label_name]
             if self.event and label_name == 's': pen_ = self.pens['e']
-            self.curve[label_name].setData(np.hstack(self.data_x), pen=pen_)
+            self.curve[label_name].setData(np.hstack(self.data[label_name]), pen=pen_)
 
     def addData(self, x, y, z, s, e=False):
         for label_name, input_ in [('x', x), ('y', y), ('z', z)]:
@@ -50,6 +53,9 @@ class QtPanningPlot:
 
 
 class ArduinoScope:
+    """
+    Visualization class for proof-of-concept fall detector (Arduino based)
+    """
     def __init__(self, filters, debug=False):
         self.PORT = Arduino.AUTODETECT
         self.app = QtGui.QApplication(sys.argv)
@@ -128,8 +134,3 @@ if __name__ == "__main__":
     with ArduinoScope(my_iirs) as scope:
         time_sleep = 100
         time.sleep(time_sleep)
-
-        # for i in range(100000):
-        # time.sleep(0.0001)
-
-    print("Finished")
