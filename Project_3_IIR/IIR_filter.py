@@ -17,20 +17,18 @@ class IIRFilter:
 class IIR2Filter:
     def __init__(self, b, a):
         """
-        :param f: narmalized frequency
-        :param r:
+        :param a:
+        :param b:
         """
-        a0, a1, a2, b0, b1, b2 = *a, *b
-        self.buffer_m1 = 0
-        self.buffer_m2 = 0
-        self.a0 = a0
-        self.a1 = a1
-        self.a2 = a2
-        self.b0 = b0
-        self.b1 = b1
-        self.b2 = b2
+        self.a0, self.a1, self.a2, self.b0, self.a1, self.b2 = *a, *b
+        self.buffer_m1, self.buffer_m2 = 0, 0
 
     def filter(self, input):
+        """
+
+        :param input:
+        :return:
+        """
         in_sum = input - self.a1 * self.buffer_m1 - self.a2 * self.buffer_m2
         out_sum = self.b0 * in_sum + self.b1 * self.buffer_m1 + self.b2 * self.buffer_m2
         self.buffer_m2 = self.buffer_m1
@@ -47,6 +45,7 @@ class IIR2Filter:
         a2 = r*r
         return a0, a1, a2, b0, b1, b2
 
+
 def return_filter():
     freq = 2.5 / 50
     sos = signal.cheby2(6, 40, freq * 2, output='sos')
@@ -55,11 +54,11 @@ def return_filter():
     my_factory = IIRFilter(sos)
     return my_factory
 
+
 if __name__ == "__main__":
     with open('output.txt', 'r') as f:
         a = f.readlines()
     data = list(map(float, a))
-
 
     sampling_rate = 100  # Hzimp
     noise_frequency = 5  # Hz
@@ -69,12 +68,11 @@ if __name__ == "__main__":
 
     b, a = signal.cheby2(6, 40, 0.05*2)
     w, h = signal.freqz(b, a)
-    # plt.plot(w / np.pi / 2, 20 * np.log10(np.abs(h)))
+    plt.plot(w / np.pi / 2, 20 * np.log10(np.abs(h)))
 
 
     freq = 5 / 50
     sos = signal.cheby2(6, 40, freq*2, output='sos')
-
     my_iir = IIR2Filter(sos[0, :3], sos[0, 3:])
     my_factory = IIRFilter(sos)
 
