@@ -41,14 +41,14 @@ class QtPanningPlot:
                      'g': pg.mkPen('g', width=1),
                      'm': pg.mkPen('m', width=1),
                      'r': pg.mkPen('r', width=2),
-                     'w': pg.mkPen('w', width=2),}
+                     'w': pg.mkPen('w', width=2), }
         self.event = False
 
     def update(self):
         self.curve_x.setData(np.hstack(self.data_x), pen=self.pens['b'])
         self.curve_y.setData(np.hstack(self.data_y), pen=self.pens['g'])
         self.curve_z.setData(np.hstack(self.data_z), pen=self.pens['m'])
-        pen_ = pen=self.pens['r'] if self.event else self.pens['w']
+        pen_ = pen = self.pens['r'] if self.event else self.pens['w']
         self.curve_s.setData(np.hstack(self.data_s), pen=pen_)
 
     def addData(self, x, y, z, s, e=False):
@@ -81,14 +81,8 @@ class ArduinoScope:
         self.board.analog[0].enable_reporting()
         self.board.analog[1].enable_reporting()
         self.board.analog[2].enable_reporting()
+        self.time_s = time.time()
         self.app.exec_()
-
-        self.board.analog[0].register_callback(self.myPrintCallback)
-        #self.board.analog[1].register_callback(self.myPrintCallback_y)
-        self.board.samplingOn(10)
-
-        #for _ in range(3):
-        #   self.board.analog[_].enable_reporting()
 
     def callback(self, data, *args, **kwargs):
         translate_val = 3.3/(5*2)
@@ -113,21 +107,23 @@ class ArduinoScope:
             if vector_f > 0.45:
                 self.event = True
                 self.event_time = 0
+
             if self.event: self.event_time += 1
-            if self.event_time > 20:
+            if self.event_time > 200:
                 self.event = False
             self.qtPanningPlot2.addData(ch0_f, ch1_f, ch2_f, vector_f, self.event)
 
+        #print('raw and filtered data: ', round(self.timestamp, 4), ch0, ch1, ch2, ch0_f, ch1_f, ch2_f)
 
-        print('raw and filtered data: ', round(self.timestamp, 4), ch0, ch1, ch2, ch0_f, ch1_f, ch2_f)
         self.timestamp += (1 / self.samplingRate)
-
         self.file.write(f'{round(self.timestamp, 4), ch0, ch1, ch2, ch0_f, ch1_f, ch2_f} \n')
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        time_f = time.time()
         self.board.samplingOff()
         self.board.exit()
         self.file.close()
+        print(f'execution_time: {time_f - self.time_s} actual sampling rate {(time_f - self.time_s) / (self.timestamp / self.samplingRate)}')
 
 
 if __name__ == "__main__":
