@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 """
-Plots channels zero and one in two different windows. Requires pyqtgraph.
+Base on the MIT licence code: pyFirmata2/examples/realtime_two_channel_scope.py by @berndporr
 """
 
 import sys
